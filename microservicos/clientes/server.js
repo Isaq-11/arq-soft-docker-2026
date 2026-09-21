@@ -83,3 +83,6 @@ async function criarTabela() {
 
 criarTabela();
 
+app.listen(3003, () => {
+    console.log("Clientes rodando na porta 3003");
+});
