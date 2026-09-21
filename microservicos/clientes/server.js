@@ -15,3 +15,71 @@ app.get("/clientes", async (req, res) => {
         res.status(500).json({ error: "Erro ao buscar clientes" });
     }
 });
+
+
+app.get("/clientes/:id", async (req, res) => {
+    try {
+        const resultado = await db.query(
+            "SELECT * FROM clientes WHERE id", 
+            [req.params.id]
+        );
+
+        const cliente = resultado.rows[0];
+
+        if(!cliente){
+            return res.status(404).json({ error: "Cliente não encontrado" });
+        }
+
+        res.json(cliente);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar cliente" });
+    }
+});
+
+
+app.post("/clientes", async (req, res) => {
+    const { nome, sobrenome, telefone, email } = req.body;
+
+    if(!nome || !sobrenome || !email){
+        return res.status(400).json({
+            error: "Nome, sobrenome e email são obrigatórios"
+        });
+    }
+
+    try {
+        const resultado = await db.query(
+            `INSERT INTO clientes (nome, sobrenome, telefone, email) 
+            VALUES ($1, $2, $3, $4)
+            RETURNING *`, 
+            [nome, sobrenome, telefone || null, email]
+        );
+
+        res.status(201).json(resultado.rows[0]);
+    } catch (error) {
+        if(error.code === "23505") {
+            return res.status(409).json({
+                error: "Já existe um cliente cadastrado com esse email"
+            });
+        }
+
+        res.status(500).json({ error: "Erro ao criar cliente" });
+    }
+});
+
+
+async function criarTabela() {
+    await db.query(
+        `CREATE TABLE IF NOT EXISTS clientes (
+            id SERIAL PRIMARY KEY, 
+            nome VARCHAR(100) NOT NULL, 
+            sobrenome VARCHAR(100) NOT NULL, 
+            telefone VARCHAR(20), 
+            email VARCHAR(150) NOT NULL UNIQUE
+        )`
+    );
+
+    console.log("Tabela de clientes criada");
+}
+
+criarTabela();
+
