@@ -20,7 +20,7 @@ app.get("/clientes", async (req, res) => {
 app.get("/clientes/:id", async (req, res) => {
     try {
         const resultado = await db.query(
-            "SELECT * FROM clientes WHERE id", 
+            "SELECT * FROM clientes WHERE id = $1", 
             [req.params.id]
         );
 

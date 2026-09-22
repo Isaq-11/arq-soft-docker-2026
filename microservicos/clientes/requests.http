@@ -2,25 +2,25 @@ POST http://localhost:3003/clientes
 Content-Type: application/json
 
 {
-    "nome": "João",
+    "nome": "Miguel",
     "sobrenome": "Silva",
     "telefone": "45999887766",
-    "email": "jozao@gmail.com"
+    "email": "miguelzin@gmail.com"
 }
 
 ###
 GET http://localhost:3003/clientes
 
 ###
-GET http://localhost:3003/clientes/1
+GET http://localhost:3003/clientes/4
 
 ###
 GET http://localhost:3003/clientes/999
 
 ###
 POST http://localhost:3003/clientes
-
 Content-Type: application/json
+
 {
     "nome": "João",
     "sobrenome": "Silva",
