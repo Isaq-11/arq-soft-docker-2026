@@ -174,6 +174,7 @@ async function criarTabela() {
         CREATE TABLE IF NOT EXISTS pedidos (
         id SERIAL PRIMARY KEY,
         produto_id INTEGER NOT NULL,
+        cliente_id INTEGER NOT NULL,
         nome_produto VARCHAR(100) NOT NULL,
         preco_unitario NUMERIC(10, 2) NOT NULL,
         quantidade INTEGER NOT NULL,
