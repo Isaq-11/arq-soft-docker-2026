@@ -6,8 +6,9 @@ POST http://localhost:3002/pedidos
 Content-Type: application/json
 
 {
-  "produtoId": 1,
-  "quantidade": 2
+  "produtoId": 4,
+  "clienteId": 1,
+  "quantidade": 3
 }
 
 ### Buscar pedido por ID

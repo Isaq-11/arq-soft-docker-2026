@@ -7,6 +7,10 @@ const app = express();
 const PRODUTOS_URL =
     process.env.PRODUTOS_URL || "http://localhost:3001";
 
+const CLIENTES_URL =
+    process.env.CLIENTES_URL || "http://localhost:3003";
+
+
 app.use(express.json());
 
 const pedidos = [];
@@ -72,55 +76,49 @@ app.get("/pedidos", async (req, res) => {
 });*/
 
 app.post("/pedidos", async (req, res) => {
-    const { produtoId, quantidade } = req.body;
+    const { clienteId, produtoId, quantidade } = req.body;
 
-    if (!produtoId || !quantidade || quantidade <= 0) {
+    if (!clienteId || !produtoId || !quantidade || quantidade <=0){
         return res.status(400).json({
-            erro: "produtoId e quantidade válida são obrigatórios"
+            erro: "clienteId, produtoId e quantidade válida são obrigatórios"
         });
     }
 
     try {
-        const resposta = await axios.get(
-            `${PRODUTOS_URL}/produtos/${produtoId}`,
-            {
-                timeout: 3000
-            }
+        await axios.get(
+            `${CLIENTES_URL}/clientes/${clienteId}`, 
+            { timeout: 3000 }
         );
 
-        const produto = resposta.data;
-        const total = produto.preco * quantidade;
+        const reposta = await axios.get(
+            `${PRODUTOS_URL}/produtos/${produtoId}`,
+            { timeout: 3000 }
+        );
+
+        const produto = reposta.data;
+        const total = produto.preco * quantidadade;
 
         const resultado = await db.query(
             `INSERT INTO pedidos (
-        produto_id,
-        nome_produto,
-        preco_unitario,
-        quantidade,
-        total
-      )
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *`,
-            [
-                produto.id,
-                produto.nome,
-                produto.preco,
-                quantidade,
-                total
-            ]
+                cliente_id, produto_id, nome_produto, preco_unitario, quantidade, total
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *`, 
+            [clienteId, produtoId, produto.nome, produto.preco, quantidade, total]
         );
 
         res.status(201).json(resultado.rows[0]);
     } catch (erro) {
-        if (erro.response?.status === 404) {
+        if(erro.response?.status === 404){
+            const veioDeClientes = erro.config?.url?.includes("/clientes/");
             return res.status(400).json({
-                erro: "Produto não encontrado"
+                erro: veioDeClientes ? "Cliente não encontrado" : "Produto não encontrado"
             });
         }
 
-        if (erro.code === "ECONNREFUSED" || erro.code === "ECONNABORTED") {
+        if(erro.code === "ECONNREFUSED" || erro.code === "ECONNABORTED"){
             return res.status(503).json({
-                erro: "Serviço de Produtos indisponível"
+                erro: "Serviço de Produtos ou de Clientes indisponível"
             });
         }
 
@@ -129,6 +127,7 @@ app.post("/pedidos", async (req, res) => {
         });
     }
 });
+
 
 /*app.get("/pedidos/:id", (req, res) => {
     const pedido = pedidos.find(
