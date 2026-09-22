@@ -96,7 +96,7 @@ app.post("/pedidos", async (req, res) => {
         );
 
         const produto = reposta.data;
-        const total = produto.preco * quantidadade;
+        const total = produto.preco * quantidade;
 
         const resultado = await db.query(
             `INSERT INTO pedidos (

@@ -11,8 +11,8 @@ app.get("/clientes", async (req, res) => {
             "SELECT * FROM clientes ORDER BY id"
         );
         res.json(resultado.rows);
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar clientes" });
+    } catch (erro) {
+        res.status(500).json({ erro: "Erro ao buscar clientes" });
     }
 });
 
@@ -31,8 +31,8 @@ app.get("/clientes/:id", async (req, res) => {
         }
 
         res.json(cliente);
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar cliente" });
+    } catch (erro) {
+        res.status(500).json({ erro: "Erro ao buscar cliente" });
     }
 });
 
@@ -42,7 +42,7 @@ app.post("/clientes", async (req, res) => {
 
     if(!nome || !sobrenome || !email){
         return res.status(400).json({
-            error: "Nome, sobrenome e email são obrigatórios"
+            erro: "Nome, sobrenome e email são obrigatórios"
         });
     }
 
@@ -55,14 +55,14 @@ app.post("/clientes", async (req, res) => {
         );
 
         res.status(201).json(resultado.rows[0]);
-    } catch (error) {
-        if(error.code === "23505") {
+    } catch (erro) {
+        if(erro.code === "23505") {
             return res.status(409).json({
-                error: "Já existe um cliente cadastrado com esse email"
+                erro: "Já existe um cliente cadastrado com esse email"
             });
         }
 
-        res.status(500).json({ error: "Erro ao criar cliente" });
+        res.status(500).json({ erro: "Erro ao criar cliente" });
     }
 });
 
