@@ -3,10 +3,10 @@ POST http://localhost:3003/clientes
 Content-Type: application/json
 
 {
-    "nome": "Lucas",
-    "sobrenome": "Lima",
+    "nome": "Marta",
+    "sobrenome": "Bosellon",
     "telefone": "45999887766",
-    "email": "luquinhasl@gmail.com"
+    "email": "bosellonmarta25@gmail.com"
 }
 
 ### buscar todos

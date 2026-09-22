@@ -6,8 +6,8 @@ POST http://localhost:3002/pedidos
 Content-Type: application/json
 
 {
-  "produtoId": 4,
-  "clienteId": 1,
+  "produtoId": 2,
+  "clienteId": 6,
   "quantidade": 3
 }
 
