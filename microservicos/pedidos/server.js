@@ -25,7 +25,49 @@ app.get("/pedidos", async (req, res) => {
             "SELECT * FROM pedidos ORDER BY id"
         );
 
-        res.json(resultado.rows);
+        const pedidosFormatados = await Promise.all(
+            resultado.rows.map(async (pedidoBanco) => {
+                try {
+                    const respostaCliente = await axios.get(
+                        `${CLIENTES_URL}/clientes/${pedidoBanco.cliente_id}`,
+                        { timeout: 2000 }
+                    );
+
+                    const respostaProduto = await axios.get(
+                        `${PRODUTOS_URL}/produtos/${pedidoBanco.produto_id}`,
+                        { timeout: 2000 }
+                    )
+
+                    const cliente = respostaCliente.data;
+                    const produto = respostaProduto.data;
+
+                    return {
+                        id: pedidoBanco.id,
+                        cliente,
+                        produto,
+                        quantidade: pedidoBanco.quantidade,
+                        total: pedidoBanco.total
+                    };
+
+                } catch {
+                    return {
+                        id: pedidoBanco.id, 
+                        cliente: {
+                            id: pedidoBanco.cliente_id, 
+                            nome: "Dados indisponiveis"
+                        },
+                        produto: {
+                            id: pedidoBanco.produto_id, 
+                            nome: "Dados indisponiveis"
+                        },
+                        quantidade: pedidoBanco.quantidade,
+                        total: pedidoBanco.total
+                    };
+                };
+            })
+        );
+
+        res.json(pedidosFormatados);
     } catch (erro) {
         res.status(500).json({
             erro: "Erro ao buscar pedidos"
@@ -85,17 +127,19 @@ app.post("/pedidos", async (req, res) => {
     }
 
     try {
-        await axios.get(
+        const respostaCliente = await axios.get(
             `${CLIENTES_URL}/clientes/${clienteId}`, 
             { timeout: 3000 }
         );
 
-        const reposta = await axios.get(
+        const cliente = respostaCliente.data;
+
+        const repostaProduto = await axios.get(
             `${PRODUTOS_URL}/produtos/${produtoId}`,
             { timeout: 3000 }
         );
 
-        const produto = reposta.data;
+        const produto = repostaProduto.data;
         const total = produto.preco * quantidade;
 
         const resultado = await db.query(
@@ -107,7 +151,17 @@ app.post("/pedidos", async (req, res) => {
             [clienteId, produtoId, produto.nome, produto.preco, quantidade, total]
         );
 
-        res.status(201).json(resultado.rows[0]);
+        const pedidoBanco = resultado.rows[0];
+
+        const respostaFormatada = {
+            id: pedidoBanco.id,
+            cliente,
+            produto,
+            quantidade: pedidoBanco.quantidade,
+            total: pedidoBanco.total
+        }
+
+        res.status(201).json(respostaFormatada);
     } catch (erro) {
         if(erro.response?.status === 404){
             const veioDeClientes = erro.config?.url?.includes("/clientes/");
